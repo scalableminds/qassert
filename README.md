@@ -13,9 +13,10 @@ assertion violations will be reported via AJAX and regressions become quickly
 visible. To give you an example how to safeguard against unexpected DOM changes:
 
 var $panel = $("#menuPanel");
-$panel.assert().load(...)
 
-$.assert($panel.text().length)
+$panel.assert().load("/");
+
+$.assert($panel.text().length);
 
 If you are interested in helping developing QAssert, you are in the right place.
 For related discussions, visit the
