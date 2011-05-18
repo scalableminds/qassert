@@ -25,9 +25,7 @@
      * Logs to options.log
      */
     function logToConsole(value, message, stacktrace) {
-        var consoleMessage = options.message + value + (message ?  " " + message : "");
-        consoleMessage += "\n" + stacktrace.join(",\n");
-        options.log(consoleMessage);
+        options.log(options.message, value, "\n", stacktrace.join(",\n"));
     }
 
     /**
@@ -50,9 +48,10 @@
     /**
      * Base assertion handler.
      */
-    function assert (value, message) {
+    function assert (value, message, originalValue) {
         if (!value) {
-            fail(value, message);
+            var reportValue = arguments.length < 3 ? value : originalValue;
+            fail(reportValue, message);
         }
     }
 
@@ -77,14 +76,14 @@
         if (options.enabled) {
             if (typeof sizeOrCallback === "number" && sizeOrCallback > 0) {
                 // assert on the size of the selection
-                assert(this.length === sizeOrCallback, message)
+                assert(this.length === sizeOrCallback, message, this)
             } else if (typeof sizeOrCallback === "function") {
                 // do callback with selection, assert on the returned value
                 var value = sizeOrCallback(this);
-                assert(value, message);
+                assert(value, message, this);
             } else {
                 // assert whether this contains any selected elements
-                assert(this.length > 0, message);
+                assert(this.length > 0, message, this);
             }
         }
         return this;
@@ -116,7 +115,7 @@
     $.assertIs = function (value, type, message) {
         if (options.enabled) {
             var actualType = getType(value);
-            assert(type === actualType, message);
+            assert(type === actualType, message, value);
         }
         return value;
     }
@@ -136,7 +135,7 @@
      */
     $.assertEmpty = function (value, message) {
         if (options.enabled) {
-            assert(isEmpty(value), message);
+            assert(isEmpty(value), message, value);
         }
         return value;
     }
@@ -150,7 +149,7 @@
      */
     $.assertNotEmpty = function (value, message) {
         if (options.enabled) {
-            assert(!isEmpty(value), message);
+            assert(!isEmpty(value), message, value);
         }
         return value;
     }
