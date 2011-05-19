@@ -16,7 +16,7 @@
             enabled: false,
             log: console && $.isFunction(console.log) ? console.log : $.noop,
             callback: $.noop,
-            message: "Assertion failed: ",
+            message: "Assertion failed on ",
             url: null,
             ignoreStackTop: 7 // IMPORTANT: for this to work, all execution paths must be the same length between API<->stack trace generation
     };
@@ -48,7 +48,7 @@
     /**
      * Base assertion handler.
      */
-    function assert (value, message, originalValue) {
+    function assert(value, message, originalValue) {
         if (!value) {
             var reportValue = arguments.length < 3 ? value : originalValue;
             fail(reportValue, message);
@@ -155,6 +155,38 @@
     }
 
     /**
+     * Strict equality assertion. If disabled, no-op.
+     * Uses ===, but falls back to == for literal types (see strictEquals().)
+     *
+     * @param value    actual value to compare
+     * @param expected expected value to compare to
+     * @param message  optional message
+     * @returns value
+     */
+    $.assertSame = function (actual, expected, message) {
+        if (options.enabled) {
+            assert(strictEquals(actual, expected), message, actual);
+        }
+        return actual;
+    }
+
+    /**
+     * Strict non-equality assertion. If disabled, no-op.
+     * Uses !==, but falls back to != for literal types (see strictEquals().)
+     *
+     * @param value    actual value to compare
+     * @param expected expected value to compare to
+     * @param message  optional message
+     * @returns value
+     */
+    $.assertNotSame = function (actual, expected, message) {
+        if (options.enabled) {
+            assert(!strictEquals(actual, expected), message, actual);
+        }
+        return value;
+    }
+
+    /**
      * Setup QAssert. Enables assertions to take action.
      * Available options are the fields of the options object on the top.
      */
@@ -193,14 +225,28 @@
         return false; // unknown things are not empty
     }
 
+    /**
+     * Strict equality.
+     *
+     * From QUnit https://github.com/jquery/qunit
+     *
+     * Copyright (c) 2011 John Resig, Jörn Zaefferer
+     * Dual licensed under the MIT (MIT-LICENSE.txt)
+     * or GPL (GPL-LICENSE.txt) licenses.
+     */
+    function strictEquals(a, b) {
+        if (b instanceof a.constructor || a instanceof b.constructor) {
+            // to catch short annotaion VS 'new' annotation of a declaration
+            // e.g. var i = 1;
+            //      var j = new Number(1);
+            return a == b;
+        } else {
+            return a === b;
+        }
+    }
 
- /* equal: function(actual, expected, message) {
-    QUnit.push(expected == actual, actual, expected, message);
-  },
 
-  notEqual: function(actual, expected, message) {
-    QUnit.push(expected != actual, actual, expected, message);
-  },
+ /*
 
   deepEqual: function(actual, expected, message) {
     QUnit.push(QUnit.equiv(actual, expected), actual, expected, message);
@@ -209,17 +255,6 @@
   notDeepEqual: function(actual, expected, message) {
     QUnit.push(!QUnit.equiv(actual, expected), actual, expected, message);
   },
-
-  strictEqual: function(actual, expected, message) {
-    QUnit.push(expected === actual, actual, expected, message);
-  },
-
-  notStrictEqual: function(actual, expected, message) {
-    QUnit.push(expected !== actual, actual, expected, message);
-  },
-
-
-  ,
 
 
         // for string, boolean, number and null
@@ -413,7 +448,7 @@
     }
 
 
-/**
+/**	   STACKTRACE
  **
  **    Micro-library for getting stack traces in all web browsers .
  **    https://github.com/emwendelin/javascript-stacktrace
