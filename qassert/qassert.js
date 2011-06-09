@@ -17,8 +17,7 @@
             log: console && $.isFunction(console.log) ? $.proxy(console.log, console) : $.noop,
             callback: $.noop,
             message: "Assertion failed on ",
-            ajax: null,
-            ignoreStackTop: 6 // IMPORTANT: for this to work, all execution paths must be the same length between API<->stack trace generation
+            ajax: null
     };
 
     /**
@@ -268,7 +267,7 @@
      * Logs to options.log
      */
     function logToConsole(value, message, stacktrace, context) {
-        options.log(options.message, value, " ", message, "\n", stacktrace.join(",\n"), context);
+        options.log(options.message, value, " ", message, " ", context, "\n", stacktrace.join(",\n"));
     }
 
     /**
@@ -329,12 +328,55 @@
         return a == b;
     }
 
+    function getType(obj) {
+        if (typeof obj === "undefined") {
+            return "undefined";
+
+        // consider: typeof null === object
+        }
+        if (obj === null) {
+            return "null";
+        }
+
+        var type = Object.prototype.toString.call( obj )
+          .match(/^\[object\s(.*)\]$/)[1] || '';
+
+        switch (type) {
+            case 'Number':
+                if (isNaN(obj)) {
+                    return "nan";
+                } else {
+                    return "number";
+                }
+            case 'String':
+            case 'Boolean':
+            case 'Array':
+            case 'Date':
+            case 'RegExp':
+            case 'Function':
+                return type.toLowerCase();
+        }
+        if (typeof obj === "object") {
+            return "object";
+        }
+        return undefined;
+    }
+
+
+    /**
+     * Utilizes the stacktrace utility below.
+     */
+    function getStackTrace() {
+        var stack = printStackTrace();
+        return stack;
+    }
+
+
     /**
      **
      ** MICRO LIBRARIES
      **
      **/
-
 
     // Test for equality any JavaScript type.
     // Discussions and reference: http://philrathe.com/articles/equiv
@@ -500,60 +542,6 @@
         return innerEquiv;
 
     }();
-
-    /**
-     * Type detector.
-     *
-     * From QUnit https://github.com/jquery/qunit
-     *
-     * Copyright (c) 2011 John Resig, Jörn Zaefferer
-     * Dual licensed under the MIT (MIT-LICENSE.txt)
-     * or GPL (GPL-LICENSE.txt) licenses.
-     */
-    function getType(obj) {
-        if (typeof obj === "undefined") {
-            return "undefined";
-
-        // consider: typeof null === object
-        }
-        if (obj === null) {
-            return "null";
-        }
-
-        var type = Object.prototype.toString.call( obj )
-          .match(/^\[object\s(.*)\]$/)[1] || '';
-
-        switch (type) {
-            case 'Number':
-                if (isNaN(obj)) {
-                    return "nan";
-                } else {
-                    return "number";
-                }
-            case 'String':
-            case 'Boolean':
-            case 'Array':
-            case 'Date':
-            case 'RegExp':
-            case 'Function':
-                return type.toLowerCase();
-        }
-        if (typeof obj === "object") {
-            return "object";
-        }
-        return undefined;
-    }
-
-    /**
-     * Utilizes the stacktrace utility below.
-     * Removes the lines corresponding to this file.
-     */
-    function getStackTrace() {
-        var stack = printStackTrace();
-        var from = Math.max(options.ignoreStackTop, 0);
-        return stack.slice(from);
-    }
-
 
     /**	   STACKTRACE
      **
