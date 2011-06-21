@@ -1,56 +1,27 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>QAssert Test Suite</title>
-  <script type="text/javascript" src="http://code.jquery.com/jquery-1.5.2.min.js"></script>
-  <script type="text/javascript" src="../qassert/qassert.js"></script>
-</head>
-<body>
-  <h1>QAssert Test Suite</h1>
-  <script type="text/javascript">
+  <head>
+    <title>QAssert Test Suite</title>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+    <script type="text/javascript" src="../qassert/qassert.js"></script>
+    <script type="text/javascript" src="tests.js"></script>
+  </head>
+  <body>
+    <h1>QAssert Test Suite</h1>
+    <script type="text/javascript">
 
-    // DECLARATIONS
-    var failed;
-    function resetFailed() {
-      failed = false;
-    }
-    function verify(failExpected) {
-      if (!!failed === !!failExpected) {
-        logPass();
-      } else {
-        logFail(failed);
-      }
-      resetFailed();
-    }
-    function logPass() {
-      document.write("Test passed.<br/>");
-    }
-    function logFail(message) {
-      document.write("Test "+message+" failed!<br/>");
-    }
+    $(function() {
+        runTests();
+    });
 
+    </script>
+    <!--  Test results -->
+    <ol id="results">
+    </ol>
 
-    // INIT
-    var options = {
-      callback: function(value, message, stacktrace) {
-        failed = message + " ";
-      }
-    };
-    $.assertSetup(options);
-    resetFailed();
-
-    /*
-     * TESTS
-     *
-     * Each test triggers callback if it failes.
-     * Callback records therefore failed tests.
-     *
-     */
-
-    // Test $.fn.assert()
-    $("h1").assert();
-    verify();
-
-  </script>
-</body>
+    <!-- Test sandbox -->
+    <div style="display:none">
+        <span></span><span></span><span></span>
+    </div>
+  </body>
 </html>

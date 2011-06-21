@@ -14,9 +14,10 @@
      */
     var options = {
             enabled: false,
-            log: console && $.isFunction(console.log) ? $.proxy(console.log, console) : $.noop,
+            catchGlobalErrors: false,
             callback: $.noop,
             message: "Assertion failed on ",
+            log: console && $.isFunction(console.log) ? $.proxy(console.log, console) : $.noop,
             ajax: null
     };
 
@@ -33,11 +34,19 @@
     $.assertSetup = function(_options) {
         options.enabled = true;
         if (typeof _options === "object") {
+            // options given
             options = $.extend(options, _options, true);
         } else {
+            // url given?
             options.ajax = {
                 type: "POST",
                 url: _options
+            }
+        }
+
+        if (options.enabled && options.catchGlobalErrors) {
+            window.onerror = function(msg, url, linenumber) {
+              fail(arguments, "Global error");
             }
         }
     }
