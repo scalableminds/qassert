@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>QAssert Test Suite</title>
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <link rel="stylesheet" href="http://code.jquery.com/qunit/git/qunit.css" type="text/css" media="screen" />
+    <script type="text/javascript" src="http://code.jquery.com/qunit/git/qunit.js"></script>
+
+    <script type="text/javascript" src="../qassert/qassert.js"></script>
+    <script type="text/javascript" src="tests.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+        runTests();
+      });
+    </script>
+  </head>
+  <body>
+
+    <!--  QUnit -->
+    <h1 id="qunit-header">QAssert self-tests</h1>
+    <h2 id="qunit-banner"></h2>
+    <div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests"></ol>
+    <div id="qunit-fixture">test markup, will be hidden</div>
+    <br/>
+    <div>This suite is driven by <a href="http://docs.jquery.com/Qunit">QUnit</a>. QAssert itself does not depend on it.</div>
+
+    <!-- Test sandbox -->
+    <div id="sandbox" style="display:none">
+        <span></span><span></span><span></span>
+    </div>
+
+  </body>
+</html>
