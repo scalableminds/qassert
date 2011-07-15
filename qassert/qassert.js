@@ -15,7 +15,7 @@
     var options = {
             enabled: false,
             catchGlobalErrors: false,
-            callback: $.noop,
+            contextCallback: $.noop,
             message: "Assertion failed on ",
             log: console && $.isFunction(console.log) ? $.proxy(console.log, console) : $.noop,
             ajax: null
@@ -59,7 +59,7 @@
      *     - If a number, we assert that it equals to the count of selected elements.
      *       $(selector).assert("We need two elements", 2)
      *
-     *     - If a function, we call sizeOrCallback(this), where this is the jQuery object of the selection,
+     *     - If a function, we call sizeOrCallback(), where this is set to the jQuery object of the selection,
      *       and we assert on the return value.
      *       $(selector).assert("Must have class foo", function(subject) {return subject.hasClass("foo")})
      *
@@ -70,12 +70,12 @@
      */
     $.fn.assert = function(message, sizeOrCallback) {
         if (options.enabled) {
-            if (typeof sizeOrCallback === "number" && sizeOrCallback > 0) {
+            if (typeof sizeOrCallback === "number") {
                 // assert on the size of the selection
                 assert(this.length === sizeOrCallback, message, this)
             } else if (typeof sizeOrCallback === "function") {
                 // do callback with selection, assert on the returned value
-                var value = sizeOrCallback(this);
+                var value = ($.proxy(sizeOrCallback, this))();
                 assert(value, message, this);
             } else {
                 // assert whether this contains any selected elements
@@ -100,6 +100,20 @@
     }
 
     /**
+     * Boolean assertion for false. If disabled, no-op.
+     *
+     * @param value    the value to assert on
+     * @param message  optional message
+     * @returns value
+     */
+    $.assertNot = function (value, message) {
+        if (options.enabled) {
+            assert(!value, message);
+        }
+        return value;
+    }
+
+    /**
      * Type assertion. If disabled, no-op.
      *
      * @param value    the value to assert on
@@ -112,6 +126,23 @@
         if (options.enabled) {
             var actualType = getType(value);
             assert(type === actualType, message, value);
+        }
+        return value;
+    }
+
+    /**
+     * Type assertion inverted. If disabled, no-op.
+     *
+     * @param value    the value to assert on
+     * @param type	   expected type as string, supported:
+     * 				   undefined, null, nan, number, string, boolean, array, date, regexp, function, object
+     * @param message  optional message
+     * @returns value
+     */
+    $.assertNotIs = function (value, type, message) {
+        if (options.enabled) {
+            var actualType = getType(value);
+            assert(type !== actualType, message, value);
         }
         return value;
     }
@@ -152,7 +183,7 @@
 
     /**
      * Strict equality assertion. If disabled, no-op.
-     * Uses ===, but falls back to == for literal types (see strictEquals().)
+     * Uses === (see strictEquals().)
      *
      * @param value    actual value to compare
      * @param expected expected value to compare to
@@ -168,7 +199,7 @@
 
     /**
      * Strict unequality assertion. If disabled, no-op.
-     * Uses !==, but falls back to != for literal types (see strictEquals().)
+     * Uses !== (see strictEquals().)
      *
      * @param value    actual value to compare
      * @param expected expected value to compare to
@@ -179,12 +210,12 @@
         if (options.enabled) {
             assert(!strictEquals(actual, expected), message, actual);
         }
-        return value;
+        return actual;
     }
 
     /**
      * Equality assertion, no recursion. If disabled, no-op.
-     * Uses == (see equals().)
+     * Uses ==, but can equal Number, RegExp, Date and NaN (see equals().)
      *
      * @param value    actual value to compare
      * @param expected expected value to compare to
@@ -200,7 +231,7 @@
 
     /**
      * Unequality assertion, no recursion. If disabled, no-op.
-     * Uses != (see equals().)
+     * Uses !=, but can equal Number, RegExp, Date and NaN (see equals().)
      *
      * @param value    actual value to compare
      * @param expected expected value to compare to
@@ -266,8 +297,8 @@
      * Handles a failed assertion.
      */
     function fail(value, message) {
-        var stacktrace = getStackTrace();
-        var context = options.callback(value, message, stacktrace);
+        var stacktrace = printStackTrace();
+        var context = options.contextCallback(value, message, stacktrace);
         logToConsole(value, message, stacktrace, context);
         logToAjax(value, message, stacktrace, context);
     }
@@ -323,18 +354,27 @@
     }
 
     function strictEquals(a, b) {
-        if (b instanceof a.constructor || a instanceof b.constructor) {
-            // to catch short annotaion VS 'new' annotation of a declaration
-            // e.g. var i = 1;
-            //      var j = new Number(1);
-            return a == b;
-        } else {
-            return a === b;
-        }
+        return a === b;
     }
 
     function equals(a, b) {
-        return a == b;
+        if (a == b) {
+            return true;
+        }
+        var type = getType(a);
+        switch (type) {
+            case "nan":
+                return isNaN(b);
+            case "date":
+                return getType(b) === "date" && a.valueOf() === b.valueOf();
+            case "regexp":
+                return getType(b) === "regexp" &&
+                    a.source === b.source && // the regex itself
+                    a.global === b.global && // and its modifers (gmi) ...
+                    a.ignoreCase === b.ignoreCase &&
+                    a.multiline === b.multiline;
+        }
+        return false;
     }
 
     function getType(obj) {
@@ -371,21 +411,19 @@
         return undefined;
     }
 
-
-    /**
-     * Utilizes the stacktrace utility below.
-     */
-    function getStackTrace() {
-        var stack = printStackTrace();
-        return stack;
-    }
-
-
     /**
      **
      ** MICRO LIBRARIES
      **
+     ** - Recursive equality.
+     ** - Stacktrace.
+     **
      **/
+
+    /*
+     * Recursive equality testing.
+     * Extracted from QUnit.
+     */
 
     // Test for equality any JavaScript type.
     // Discussions and reference: http://philrathe.com/articles/equiv
@@ -552,12 +590,10 @@
 
     }();
 
-    /**	   STACKTRACE
-     **
-     **    Micro-library for getting stack traces in all web browsers .
-     **    https://github.com/emwendelin/javascript-stacktrace
-     **    To be updated frequently.
-     **/
+    /*
+     * Get the stacktraces in all web browsers.
+     * https://github.com/emwendelin/javascript-stacktrace
+     */
 
     // Domain Public by Eric Wendelin http://eriwen.com/ (2008)
     //                  Luke Smith http://lucassmith.name/ (2008)
