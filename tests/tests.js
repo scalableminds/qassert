@@ -17,6 +17,7 @@ function expectFailure() {
     return getLastResultAndReset();
 }
 
+var contextCallbackTest = $.noop, logTest = $.noop;
 
 /*
  * INIT
@@ -24,6 +25,10 @@ function expectFailure() {
 var options = {
   contextCallback : function(value, message, stacktrace) {
       failed = true;
+      return contextCallbackTest(value, message, stacktrace);
+  },
+  log: function(title, value, message, stacktrace, context) {
+      logTest(title, value, message, stacktrace, context);
   },
   catchGlobalErrors : true
 };
@@ -210,35 +215,6 @@ function runTests() {
    });
 
    test("assertSame", function() {
-        var a = new Number(5);
-        var aa = new Number(5);
-        var b = 5;
-        $.assertSame(a, a);
-        ok(expectSuccess());
-        $.assertSame(a, aa);
-        ok(expectFailure());
-        $.assertSame(a, b);
-        ok(expectFailure());
-
-        var n = 0/0;
-        $.assertSame(n, n);
-        ok(expectFailure());
-
-        $.assertSame(null, null);
-        ok(expectSuccess());
-        $.assertSame(undefined, undefined);
-        ok(expectSuccess());
-        $.assertSame("", "");
-        ok(expectSuccess());
-        $.assertSame(null, undefined);
-        ok(expectFailure());
-        $.assertSame(false, 0);
-        ok(expectFailure());
-        $.assertSame({},[]);
-        ok(expectFailure());
-   });
-
-   test("assertSame", function() {
        var a = new Number(5);
        var aa = new Number(5);
        var b = 5;
@@ -295,4 +271,183 @@ function runTests() {
        $.assertNotSame({},[]);
        ok(expectSuccess());
   });
+
+  test("assertEquals", function() {
+       var a = new Number(5);
+       var aa = new Number(5);
+       var b = 5;
+       $.assertEquals(a, a);
+       ok(expectSuccess());
+       $.assertEquals(a, aa);
+       ok(expectSuccess());
+       $.assertEquals(a, b);
+       ok(expectSuccess());
+
+       var n = 0/0;
+       $.assertEquals(n, n);
+       ok(expectSuccess());
+
+       $.assertEquals(null, null);
+       ok(expectSuccess());
+       $.assertEquals(undefined, undefined);
+       ok(expectSuccess());
+       $.assertEquals("sdbgjk", "sdbgjk");
+       ok(expectSuccess());
+       $.assertEquals("", "");
+       ok(expectSuccess());
+       $.assertEquals(null, undefined);
+       ok(expectSuccess());
+       $.assertEquals(false, 0);
+       ok(expectSuccess());
+       $.assertEquals({},{});
+       ok(expectFailure());
+
+       var d = new Date();
+       var dd = new Date(d);
+       $.assertEquals(d, dd);
+       ok(expectSuccess());
+
+       var r = /asd/i;
+       var rr = new RegExp("asd", "i");
+       $.assertEquals(r, rr);
+       ok(expectSuccess());
+  });
+
+  test("assertNotEquals", function() {
+      var a = new Number(5);
+      var aa = new Number(5);
+      var b = 6;
+      $.assertNotEquals(a, a);
+      ok(expectFailure());
+      $.assertNotEquals(a, aa);
+      ok(expectFailure());
+      $.assertNotEquals(a, b);
+      ok(expectSuccess());
+
+      var n = 0/0;
+      $.assertNotEquals(n, n);
+      ok(expectFailure());
+
+      $.assertNotEquals(null, null);
+      ok(expectFailure());
+      $.assertNotEquals(undefined, undefined);
+      ok(expectFailure());
+      $.assertNotEquals("", "");
+      ok(expectFailure());
+      $.assertNotEquals("s", "S");
+      ok(expectSuccess());
+      $.assertNotEquals(null, undefined);
+      ok(expectFailure());
+      $.assertNotEquals(false, 1);
+      ok(expectSuccess());
+      $.assertNotEquals({},{});
+      ok(expectSuccess());
+
+      var d = new Date();
+      var dd = new Date(d+1);
+      $.assertNotEquals(d, dd);
+      ok(expectSuccess());
+
+      var r = /asd/;
+      var rr = new RegExp("asd", "i");
+      $.assertNotEquals(r, rr);
+      ok(expectSuccess());
+  });
+
+  test("assertDeepEquals", function() {
+      var f = function() {};
+      var a = {
+              a: undefined,
+              b: null,
+              c: NaN,
+              d: {
+                  e: [false, 1, "2"],
+                  f: f
+              },
+              g: new Date()
+      };
+      var aa = {
+              a: undefined,
+              b: null,
+              c: NaN,
+              d: {
+                  e: [false, 1, "2"],
+                  f: f
+              },
+              g: new Date(a.g)
+      };
+
+      $.assertDeepEquals(a, a);
+      ok(expectSuccess());
+      $.assertDeepEquals(a, aa);
+      ok(expectSuccess());
+      $.assertDeepEquals({}, {});
+      ok(expectSuccess());
+      $.assertDeepEquals([], []);
+      ok(expectSuccess());
+      $.assertDeepEquals(1, 1);
+      ok(expectSuccess());
+  });
+
+  test("assertNotDeepEquals", function() {
+      var f = function() {};
+      var g = function() {};
+      $.assertNotDeepEquals({f: f}, {f: g});
+      ok(expectSuccess());
+      $.assertNotDeepEquals({f: f}, {g: f});
+      ok(expectSuccess());
+      $.assertNotDeepEquals({f: new Date()}, {f: new Date(0)});
+      ok(expectSuccess());
+      $.assertNotDeepEquals({n: NaN}, {n: null});
+      ok(expectSuccess());
+      $.assertNotDeepEquals({n: NaN}, {n: NaN});
+      ok(expectFailure());
+  });
+
+  module("options");
+
+  test("contextCallback, log", function() {
+      var o = {}, msg = "Fffffffffff", ctx = "Wwwwwwwwwwwwwww", tilt = "TEST";
+      $.assertSetup({title: tilt});
+      contextCallbackTest = function(value, message, stacktrace) {
+          strictEqual(value, o);
+          strictEqual(message, msg);
+          ok(stacktrace);
+          return ctx;
+      }
+      logTest = function(title, value, message, stacktrace, context) {
+          strictEqual(title,tilt);
+          strictEqual(value, o);
+          strictEqual(message, msg);
+          ok(stacktrace);
+          strictEqual(context, ctx);
+      }
+      $.assertNot(o, msg)
+      contextCallbackTest = $.noop, logTest = $.noop;
+  });
+
+  asyncTest("catchGlobalErrors", function() {
+      setTimeout(function(){
+          setTimeout(function(){
+              start();
+              ok(expectFailure());
+          })
+          var foo;
+          foo.bar = 123;
+      });
+  });
+
+  asyncTest("ajax", 1, function() {
+      $.assertSetup("/logger");
+      $.ajax({
+          beforeSend: function(jqXHR, settings) {
+              start();
+              ok(true);
+              return false;
+          }
+      })
+      $.assert(false);
+      $.assertSetup({ajax: null});
+  });
+
 }

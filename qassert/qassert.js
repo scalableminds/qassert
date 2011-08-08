@@ -13,12 +13,12 @@
      * Please note: disabled by default!
      */
     var options = {
+            ajax: null,
             enabled: false,
             catchGlobalErrors: false,
             contextCallback: $.noop,
-            message: "Assertion failed on ",
             log: console && $.isFunction(console.log) ? $.proxy(console.log, console) : $.noop,
-            ajax: null
+            title: "Assertion failed:"
     };
 
     /**
@@ -35,20 +35,25 @@
         options.enabled = true;
         if (typeof _options === "object") {
             // options given
-            options = $.extend(options, _options, true);
-        } else {
+            options = $.extend(true, options, _options);
+        }
+        if (typeof _options === "string") {
             // url given?
+            options.ajax = _options;
+        }
+        if (typeof options.ajax != "object") {
+            // ajax option is just an url?
             options.ajax = {
                 type: "POST",
-                url: _options
-            }
+                url: options.ajax
+            };
         }
 
         if (options.enabled && options.catchGlobalErrors) {
-            window.onerror = function(msg, url, linenumber) {
-              fail(arguments, "Global error");
-            }
+            window.onerror = failGlobal;
         }
+
+        return options.enabled;
     }
 
     /**
@@ -94,7 +99,7 @@
      */
     $.assert = function (value, message) {
         if (options.enabled) {
-            assert(value, message);
+            assert(value, message, value);
         }
         return value;
     }
@@ -108,7 +113,7 @@
      */
     $.assertNot = function (value, message) {
         if (options.enabled) {
-            assert(!value, message);
+            assert(!value, message, value);
         }
         return value;
     }
@@ -215,7 +220,7 @@
 
     /**
      * Equality assertion, no recursion. If disabled, no-op.
-     * Uses ==, but can equal Number, RegExp, Date and NaN (see equals().)
+     * Uses ==, except it equals Number, RegExp, Date and NaN (see equals().)
      *
      * @param value    actual value to compare
      * @param expected expected value to compare to
@@ -231,7 +236,7 @@
 
     /**
      * Unequality assertion, no recursion. If disabled, no-op.
-     * Uses !=, but can equal Number, RegExp, Date and NaN (see equals().)
+     * Uses !=, except it equals Number, RegExp, Date and NaN (see equals().)
      *
      * @param value    actual value to compare
      * @param expected expected value to compare to
@@ -304,23 +309,31 @@
     }
 
     /**
+     * Handles window.onerror.
+     */
+    function failGlobal(msg, url, linenumber) {
+        fail(arguments, "Global error");
+    }
+
+    /**
      * Logs to options.log
      */
     function logToConsole(value, message, stacktrace, context) {
-        options.log(options.message, value, " ", message, " ", context, "\n", stacktrace.join(",\n"));
+        options.log(options.title, value, message, stacktrace.join(",\n"), context);
     }
 
     /**
      * Logs to $.ajax(options.ajax)
      */
-    function logToAjax(value, message, stacktrace, context) {
+    function logToAjax(title, value, message, stacktrace, context) {
         var params = options.ajax;
         if (params) {
             var data = {
-                value: value,
+                context: context,
                 message: message,
                 stacktrace: stacktrace,
-                context: context
+                title: options.title,
+                value: value
             };
             params = $.extend(params, {data: data}, true);
             $.ajax(params);
@@ -367,6 +380,8 @@
                 return isNaN(b);
             case "date":
                 return getType(b) === "date" && a.valueOf() === b.valueOf();
+            case "number":
+                return getType(b) === "number" && a.valueOf() === b.valueOf()
             case "regexp":
                 return getType(b) === "regexp" &&
                     a.source === b.source && // the regex itself
@@ -451,14 +466,7 @@
 
             // for string, boolean, number and null
             function useStrictEquality(b, a) {
-                if (b instanceof a.constructor || a instanceof b.constructor) {
-                    // to catch short annotaion VS 'new' annotation of a declaration
-                    // e.g. var i = 1;
-                    // var j = new Number(1);
-                    return a == b;
-                } else {
-                    return a === b;
-                }
+                return a === b;
             }
 
             return {
