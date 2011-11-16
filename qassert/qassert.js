@@ -35,15 +35,10 @@
      */
     var options = {
             enabled: false,
-            /** Ajax options, passed to $.ajax() */
             ajax: null,
-            /** Wether to catch global errors by hooking on window.onerror. */
             catchGlobalErrors: false,
-            /** Failed assertions call this, it can examine the current context, its return value is part of the report. */
             contextCallback: $.noop,
-            /** Log function to call, defaults to console.log if present. */
             log: console && $.isFunction(console.log) ? $.proxy(console.log, console) : $.noop,
-            /** Default title. */
             title: "Assertion failed:"
     };
 
