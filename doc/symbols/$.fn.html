@@ -5,7 +5,7 @@
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<meta name="generator" content="JsDoc Toolkit" />
 		
-		<title>QAssert JsDoc Reference - _global_</title>
+		<title>QAssert JsDoc Reference - $.fn</title>
 
 		<style type="text/css">
 			/* default.css */
@@ -206,7 +206,7 @@ ul.inheritsList
 <!-- ============================== class title ============================ -->
 			<h1 class="classTitle">
 				
-				Built-In Namespace _global_
+				Namespace $.fn
 			</h1>
 
 <!-- ============================== class summary ========================== -->			
@@ -214,12 +214,35 @@ ul.inheritsList
 				
 				
 			
+				jQuery.fn
 				
 				
+					<br /><i>Defined in: </i> <a href="../symbols/src/qassert_qassert.js.html">qassert.js</a>.
 				
 			</p>
 
 <!-- ============================== constructor summary ==================== -->			
+			
+			<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class $.fn.">
+				<caption>Namespace Summary</caption>
+				<thead>
+					<tr>
+						<th scope="col">Constructor Attributes</th>
+						<th scope="col">Constructor Name and Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td class="attributes">&nbsp;</td>
+						<td class="nameDescription" >
+							<div class="fixedFont">
+								<b><a href="../symbols/%24.fn.html#constructor">$.fn</a></b>
+							</div>
+							<div class="description">jQuery selector extensions - $(sel).f()</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
 			
 
 <!-- ============================== properties summary ===================== -->
@@ -227,16 +250,124 @@ ul.inheritsList
 
 <!-- ============================== methods summary ======================== -->
 			
+				
+				
+				<table class="summaryTable" cellspacing="0" summary="A summary of the methods documented in the class $.fn.">
+					<caption>Method Summary</caption>
+					<thead>
+						<tr>
+							<th scope="col">Method Attributes</th>
+							<th scope="col">Method Name and Description</th>
+						</tr>
+					</thead>
+					<tbody>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">$.fn.<b><a href="../symbols/%24.fn.html#.assert">assert</a></b>(message, sizeOrCallback)
+								</div>
+								<div class="description">Selector assertion.</div>
+							</td>
+						</tr>
+					
+					</tbody>
+				</table>
+				
+				
+				
+			
 <!-- ============================== events summary ======================== -->
 			
 
 <!-- ============================== constructor details ==================== -->		
+			
+			<div class="details"><a name="constructor"> </a>
+				<div class="sectionTitle">
+					Namespace Detail
+				</div>
+				
+				<div class="fixedFont">
+						<b>$.fn</b>
+				</div>
+				
+				<div class="description">
+					jQuery selector extensions - $(sel).f()
+					
+				</div>
+				
+				
+				
+				
+					
+					
+					
+					
+					
+					
+					
+
+			</div>
 			
 
 <!-- ============================== field details ========================== -->		
 			
 
 <!-- ============================== method details ========================= -->		
+			
+				<div class="sectionTitle">
+					Method Detail
+				</div>
+				
+					<a name=".assert"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">$.fn.</span><b>assert</b>(message, sizeOrCallback)
+					
+					</div>
+					<div class="description">
+						Selector assertion. If disabled, no-op.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<b>message</b>
+									
+								</dt>
+								<dd>optional message</dd>
+							
+								<dt>
+									<b>sizeOrCallback</b>
+									
+								</dt>
+								<dd>optional    - If a number, we assert that it equals to the count of selected elements.      $(selector).assert("We need two elements", 2)    - If a function, we call sizeOrCallback(), where this is set to the jQuery object of the selection,      and we assert on the return value.      $(selector).assert("Must have class foo", function(subject) {return subject.hasClass("foo")})    - Otherwise we assert that the selection is not empty.      $(selector).assert().text("FOO")</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd>this, method chaining possible.</dd>
+							
+							</dl>
+						
+						
+						
+
+					
+				
 			
 			
 <!-- ============================== event details ========================= -->		

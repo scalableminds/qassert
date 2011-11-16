@@ -5,7 +5,7 @@
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<meta name="generator" content="JsDoc Toolkit" />
 		
-		<title>QAssert JsDoc Reference - _global_</title>
+		<title>QAssert JsDoc Reference - options</title>
 
 		<style type="text/css">
 			/* default.css */
@@ -206,7 +206,7 @@ ul.inheritsList
 <!-- ============================== class title ============================ -->
 			<h1 class="classTitle">
 				
-				Built-In Namespace _global_
+				Class options
 			</h1>
 
 <!-- ============================== class summary ========================== -->			
@@ -217,9 +217,32 @@ ul.inheritsList
 				
 				
 				
+					<br /><i>Defined in: </i> <a href="../symbols/src/qassert_qassert.js.html">qassert.js</a>.
+				
 			</p>
 
 <!-- ============================== constructor summary ==================== -->			
+			
+			<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class options.">
+				<caption>Class Summary</caption>
+				<thead>
+					<tr>
+						<th scope="col">Constructor Attributes</th>
+						<th scope="col">Constructor Name and Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td class="attributes">&nbsp;</td>
+						<td class="nameDescription" >
+							<div class="fixedFont">
+								<b><a href="../symbols/options.html#constructor">options</a></b>(enabled, ajax, catchGlobalErrors, contextCallback, log, title)
+							</div>
+							<div class="description">Default options.</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
 			
 
 <!-- ============================== properties summary ===================== -->
@@ -231,6 +254,81 @@ ul.inheritsList
 			
 
 <!-- ============================== constructor details ==================== -->		
+			
+			<div class="details"><a name="constructor"> </a>
+				<div class="sectionTitle">
+					Class Detail
+				</div>
+				
+				<div class="fixedFont">
+						<b>options</b>(enabled, ajax, catchGlobalErrors, contextCallback, log, title)
+				</div>
+				
+				<div class="description">
+					Default options. Use $.assertSetup() to override. Options:
+					
+				</div>
+				
+				
+				
+				
+					
+						<dl class="detailList">
+						<dt class="heading">Parameters:</dt>
+						
+							<dt>
+								<span class="light fixedFont">{bool}</span>  <b>enabled</b>
+								<i>Optional, Default: false</i>
+							</dt>
+								<dd>Activate or de-activate module.</dd>
+						
+							<dt>
+								<span class="light fixedFont">{String URL or $.ajax() parameter object}</span>  <b>ajax</b>
+								<i>Optional, Default: null</i>
+							</dt>
+								<dd>AJAX URL or complete jQuery AJAX options.</dd>
+						
+							<dt>
+								<span class="light fixedFont">{bool}</span>  <b>catchGlobalErrors</b>
+								<i>Optional, Default: false</i>
+							</dt>
+								<dd>Catch global errors besides assertion failures?</dd>
+						
+							<dt>
+								<span class="light fixedFont">{Funtion}</span>  <b>contextCallback</b>
+								<i>Optional, Default: $.noop</i>
+							</dt>
+								<dd>A callback function(value, message, stacktrace), called to supply additional data before a failure is being reported.</dd>
+						
+							<dt>
+								<span class="light fixedFont">{Funtion}</span>  <b>log</b>
+								<i>Optional, Default: console && $.isFunction(console.log) ? $.proxy(console.log, console) : $.noop</i>
+							</dt>
+								<dd>A log function called on assertion failure.</dd>
+						
+							<dt>
+								<span class="light fixedFont">{String}</span>  <b>title</b>
+								<i>Optional, Default: Assertion failed:</i>
+							</dt>
+								<dd>Default title.</dd>
+						
+						</dl>
+					
+					
+					
+					
+					
+					
+					
+						<dl class="detailList">
+						<dt class="heading">See:</dt>
+						
+							<dd><a href="../symbols/%24.html#.assertSetup">$.assertSetup</a>()</dd>
+						
+						</dl>
+					
+
+			</div>
 			
 
 <!-- ============================== field details ========================== -->		

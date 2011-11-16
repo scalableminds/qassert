@@ -1,23 +1,49 @@
-﻿/*
- * QAssert - A JavaScript Assertions Framework with AJAX reporting.
+﻿/**
+ * @fileOverview QAssert - A JavaScript Assertions Framework with AJAX reporting.
+ * @see <a href="https://github.com/gaboom/qassert">Project Homepage</a>
  *
- * https://github.com/gaboom/qassert
- *
- * Copyright (c) 2011 EPAM Systems / Gábor Czigola
- * Dual licensed under the MIT or GPL licenses.
+ * @author Copyright (c) 2011 EPAM Systems - Dual licensed under the MIT or GPL licenses.
+ * @author Gábor Czigola
+ * @version 0.3
+ * @requires jQuery
+ */
+
+/** jQuery extensions - $.f()
+ * @namespace jQuery
+ * @name $
+ */
+/** jQuery selector extensions - $(sel).f()
+ * @namespace jQuery.fn
+ * @memberOf $
+ * @name fn
  */
 
 (function($) {
     /**
-     * Default options. Use $.assertSetup() to overwrite.
-     * Please note: disabled by default!
+     * Default options. Use $.assertSetup() to override. Options:
+     *
+     * @param {bool} [enabled=false] Activate or de-activate module.
+     * @param {String URL or $.ajax() parameter object} [ajax=null] AJAX URL or complete jQuery AJAX options.
+     * @param {bool} [catchGlobalErrors=false] Catch global errors besides assertion failures?
+     * @param {Funtion} [contextCallback=$.noop] A callback function(value, message, stacktrace), called to supply additional data before a failure is being reported.
+     * @param {Funtion} [log=console && $.isFunction(console.log) ? $.proxy(console.log, console) : $.noop] A log function called on assertion failure.
+     * @param {String} [title=Assertion failed:] Default title.
+     *
+     * @class
+     * @name options
+     * @see $.assertSetup()
      */
     var options = {
-            ajax: null,
             enabled: false,
+            /** Ajax options, passed to $.ajax() */
+            ajax: null,
+            /** Wether to catch global errors by hooking on window.onerror. */
             catchGlobalErrors: false,
+            /** Failed assertions call this, it can examine the current context, its return value is part of the report. */
             contextCallback: $.noop,
+            /** Log function to call, defaults to console.log if present. */
             log: console && $.isFunction(console.log) ? $.proxy(console.log, console) : $.noop,
+            /** Default title. */
             title: "Assertion failed:"
     };
 
@@ -27,9 +53,14 @@
      **
      **/
 
-    /**
-     * Setup QAssert. Enables assertions to take action.
-     * Available options are the fields of the options object on the top.
+    /** Setup QAssert. Overrides default options,
+     * @param _options Supported values: <br/>
+     * 				   - empty: sets enabled to true <br/>
+     *                 - string: sets enabled to true and ajax to this url <br/>
+     *                 - object: sets enabled to true then overrides options with this object <br/>
+     * @returns options.enabled
+     * @see options
+     * @public
      */
     $.assertSetup = function(_options) {
         options.enabled = true;
@@ -72,6 +103,7 @@
      *       $(selector).assert().text("FOO")
      *
      * @returns this, method chaining possible.
+     * @public
      */
     $.fn.assert = function(message, sizeOrCallback) {
         if (options.enabled) {
@@ -435,15 +467,15 @@
      **
      **/
 
-    /*
+    /**
      * Recursive equality testing.
      * Extracted from QUnit.
+     *
+     * Test for equality any JavaScript type.
+     * Discussions and reference: http://philrathe.com/articles/equiv
+     * Test suites: http://philrathe.com/tests/equiv
+     * Author: Philippe Rathé <prathe@gmail.com>
      */
-
-    // Test for equality any JavaScript type.
-    // Discussions and reference: http://philrathe.com/articles/equiv
-    // Test suites: http://philrathe.com/tests/equiv
-    // Author: Philippe Rathé <prathe@gmail.com>
     var deepEquals = function (){
 
         var innerEquiv; // the real equiv function
@@ -575,7 +607,7 @@
             };
         }();
 
-        innerEquiv = function () { // can take multiple arguments
+        var innerEquiv = function () { // can take multiple arguments
             var args = Array.prototype.slice.apply(arguments);
             if (args.length < 2) {
                 return true; // end transition
@@ -965,6 +997,5 @@
      **    END OF STACKTRACE
      **
      **/
-
 
 })(jQuery);
