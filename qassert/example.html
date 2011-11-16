@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Example</title>
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript" src="qassert.js"></script>
+
+    <script type="text/javascript">
+	$.assertSetup();
+    </script>
+  </head>
+  <body>
+    <h1>QAssert Example</h1>
+    <div>Open browser console.</div>
+    <script type="text/javascript">
+	$(function() {
+            $.assert(false);
+        });
+    </script>
+  </body>
+</html>
