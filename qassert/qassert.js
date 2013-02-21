@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @fileOverview QAssert - A JavaScript Assertions Framework with AJAX reporting.
  * @see <a href="https://github.com/gaboom/qassert">Project Homepage</a>
  *
@@ -39,7 +39,8 @@
             catchGlobalErrors: false,
             contextCallback: $.noop,
             log: console && $.isFunction(console.log) ? $.proxy(console.log, console) : $.noop,
-            title: "Assertion failed:"
+            title: "Assertion failed:",
+            globalTitle: "Global error:"
     };
 
     /**
@@ -50,7 +51,7 @@
 
     /** Setup QAssert. Overrides default options,
      * @param _options Supported values: <br/>
-     *                 - empty: sets enabled to true <br/>
+     * 				   - empty: sets enabled to true <br/>
      *                 - string: sets enabled to true and ajax to this url <br/>
      *                 - object: sets enabled to true then overrides options with this object <br/>
      * @returns options.enabled
@@ -89,7 +90,7 @@
     /**
      * Selector assertion. If disabled, no-op.
      *
-     * @param message   optional message
+     * @param message	optional message
      * @param sizeOrCallback    optional
      *     - If a number, we assert that it equals to the count of selected elements.
      *       $(selector).assert("We need two elements", 2)
@@ -153,8 +154,8 @@
      * Type assertion. If disabled, no-op.
      *
      * @param value    the value to assert on
-     * @param type     expected type as string, supported:
-     *                 undefined, null, nan, number, string, boolean, array, date, regexp, function, object
+     * @param type	   expected type as string, supported:
+     * 				   undefined, null, nan, number, string, boolean, array, date, regexp, function, object
      * @param message  optional message
      * @returns value
      */
@@ -170,8 +171,8 @@
      * Type assertion inverted. If disabled, no-op.
      *
      * @param value    the value to assert on
-     * @param type     expected type as string, supported:
-     *                 undefined, null, nan, number, string, boolean, array, date, regexp, function, object
+     * @param type	   expected type as string, supported:
+     * 				   undefined, null, nan, number, string, boolean, array, date, regexp, function, object
      * @param message  optional message
      * @returns value
      */
@@ -187,7 +188,7 @@
      * Empty assertion. If disabled, no-op.
      *
      * @param value    the value to assert emptiness on, supported semantics for type:
-     *                 - undefined, null, nan: true
+     * 				   - undefined, null, nan: true
      *                 - number: true if 0
      *                 - string: true if ""
      *                 - boolean: true if false
@@ -325,33 +326,32 @@
     function assert(value, message, originalValue, context) {
         if (!value) {
             var reportValue = arguments.length < 3 ? value : originalValue;
-            fail(reportValue, message, context);
+            var stacktrace = printStackTrace({ guess: false }) 
+            stacktrace = stacktrace.slice(6, stacktrace.length);
+            fail(options.title, reportValue, message, stacktrace, context);
         }
     }
 
     /**
      * Handles a failed assertion.
      */
-    function fail(value, message, context) {
-        var stacktrace = printStackTrace( { guess: false } );
-        stacktrace = stacktrace.slice(6, stacktrace.length);
-        var globalContext = options.context;
-        logToConsole(value, message, stacktrace, globalContext, context);
-        logToAjax(value, message, stacktrace, globalContext, context);
+    function fail(title, value, message, stacktrace, context) {
+        logToConsole(title, value, message, stacktrace, options.context, context);
+        logToAjax(title, value, message, stacktrace, options.context, context);
     }
 
     /**
      * Handles window.onerror.
      */
     function failGlobal(msg, url, linenumber) {
-        fail({ url : url, linenumber : linenumber }, msg, "global");
+        fail(options.globalTitle, null, msg, [url + ":" + linenumber], "global");
     }
 
     /**
      * Logs to options.log
      */
-    function logToConsole(value, message, stacktrace, globalContext, context) {
-        options.log(options.title, message, "\n",
+    function logToConsole(title, value, message, stacktrace, globalContext, context) {
+        options.log(title, message, "\n",
             {
                 "Value": value,
                 "Stacktrace": stacktrace,
@@ -363,7 +363,7 @@
     /**
      * Logs to $.ajax(options.ajax)
      */
-    function logToAjax(value, message, stacktrace, globalContext, context) {
+    function logToAjax(title, value, message, stacktrace, globalContext, context) {
         var params = options.ajax;
         if (params) {
             var data = {
@@ -371,7 +371,7 @@
                 localContext: JSON.stringify(context),
                 message: message,
                 stacktrace: JSON.stringify(stacktrace),
-                title: options.title,
+                title: title,
                 value: JSON.stringify(value)
             };
             params = $.extend(params, { data: data }, true);
