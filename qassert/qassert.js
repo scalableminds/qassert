@@ -50,7 +50,7 @@
 
     /** Setup QAssert. Overrides default options,
      * @param _options Supported values: <br/>
-     * 				   - empty: sets enabled to true <br/>
+     *                 - empty: sets enabled to true <br/>
      *                 - string: sets enabled to true and ajax to this url <br/>
      *                 - object: sets enabled to true then overrides options with this object <br/>
      * @returns options.enabled
@@ -82,10 +82,14 @@
         return options.enabled;
     }
 
+    $.assertExtendContext = function(_context) {
+        options.context = $.extend(options.context, _context, true);
+    }
+
     /**
      * Selector assertion. If disabled, no-op.
      *
-     * @param message	optional message
+     * @param message   optional message
      * @param sizeOrCallback    optional
      *     - If a number, we assert that it equals to the count of selected elements.
      *       $(selector).assert("We need two elements", 2)
@@ -100,18 +104,18 @@
      * @returns this, method chaining possible.
      * @public
      */
-    $.fn.assert = function(message, sizeOrCallback) {
+    $.fn.assert = function(message, sizeOrCallback, context) {
         if (options.enabled) {
             if (typeof sizeOrCallback === "number") {
                 // assert on the size of the selection
-                assert(this.length === sizeOrCallback, message, this)
+                assert(this.length === sizeOrCallback, message, this, context)
             } else if (typeof sizeOrCallback === "function") {
                 // do callback with selection, assert on the returned value
                 var value = ($.proxy(sizeOrCallback, this))();
-                assert(value, message, this);
+                assert(value, message, this, context);
             } else {
                 // assert whether this contains any selected elements
-                assert(this.length > 0, message, this);
+                assert(this.length > 0, message, this, context);
             }
         }
         return this;
@@ -124,9 +128,9 @@
      * @param message  optional message
      * @returns value
      */
-    $.assert = function (value, message) {
+    $.assert = function (value, message, context) {
         if (options.enabled) {
-            assert(value, message, value);
+            assert(value, message, value, context);
         }
         return value;
     }
@@ -138,9 +142,9 @@
      * @param message  optional message
      * @returns value
      */
-    $.assertNot = function (value, message) {
+    $.assertNot = function (value, message, context) {
         if (options.enabled) {
-            assert(!value, message, value);
+            assert(!value, message, value, context);
         }
         return value;
     }
@@ -149,15 +153,15 @@
      * Type assertion. If disabled, no-op.
      *
      * @param value    the value to assert on
-     * @param type	   expected type as string, supported:
-     * 				   undefined, null, nan, number, string, boolean, array, date, regexp, function, object
+     * @param type     expected type as string, supported:
+     *                 undefined, null, nan, number, string, boolean, array, date, regexp, function, object
      * @param message  optional message
      * @returns value
      */
-    $.assertIs = function (value, type, message) {
+    $.assertIs = function (value, type, message, context) {
         if (options.enabled) {
             var actualType = getType(value);
-            assert(type === actualType, message, value);
+            assert(type === actualType, message, value, context);
         }
         return value;
     }
@@ -166,15 +170,15 @@
      * Type assertion inverted. If disabled, no-op.
      *
      * @param value    the value to assert on
-     * @param type	   expected type as string, supported:
-     * 				   undefined, null, nan, number, string, boolean, array, date, regexp, function, object
+     * @param type     expected type as string, supported:
+     *                 undefined, null, nan, number, string, boolean, array, date, regexp, function, object
      * @param message  optional message
      * @returns value
      */
-    $.assertNotIs = function (value, type, message) {
+    $.assertNotIs = function (value, type, message, context) {
         if (options.enabled) {
             var actualType = getType(value);
-            assert(type !== actualType, message, value);
+            assert(type !== actualType, message, value, context);
         }
         return value;
     }
@@ -183,7 +187,7 @@
      * Empty assertion. If disabled, no-op.
      *
      * @param value    the value to assert emptiness on, supported semantics for type:
-     * 				   - undefined, null, nan: true
+     *                 - undefined, null, nan: true
      *                 - number: true if 0
      *                 - string: true if ""
      *                 - boolean: true if false
@@ -192,9 +196,9 @@
      * @param message  optional message
      * @returns value
      */
-    $.assertEmpty = function (value, message) {
+    $.assertEmpty = function (value, message, context) {
         if (options.enabled) {
-            assert(isEmpty(value), message, value);
+            assert(isEmpty(value), message, value, context);
         }
         return value;
     }
@@ -206,9 +210,9 @@
      * @param message  optional message
      * @returns value
      */
-    $.assertNotEmpty = function (value, message) {
+    $.assertNotEmpty = function (value, message, context) {
         if (options.enabled) {
-            assert(!isEmpty(value), message, value);
+            assert(!isEmpty(value), message, value, context);
         }
         return value;
     }
@@ -222,9 +226,9 @@
      * @param message  optional message
      * @returns value
      */
-    $.assertSame = function (actual, expected, message) {
+    $.assertSame = function (actual, expected, message, context) {
         if (options.enabled) {
-            assert(strictEquals(actual, expected), message, actual);
+            assert(strictEquals(actual, expected), message, actual, context);
         }
         return actual;
     }
@@ -238,9 +242,9 @@
      * @param message  optional message
      * @returns value
      */
-    $.assertNotSame = function (actual, expected, message) {
+    $.assertNotSame = function (actual, expected, message, context) {
         if (options.enabled) {
-            assert(!strictEquals(actual, expected), message, actual);
+            assert(!strictEquals(actual, expected), message, actual, context);
         }
         return actual;
     }
@@ -254,9 +258,9 @@
      * @param message  optional message
      * @returns value
      */
-    $.assertEquals = function (actual, expected, message) {
+    $.assertEquals = function (actual, expected, message, context) {
         if (options.enabled) {
-            assert(equals(actual, expected), message, actual);
+            assert(equals(actual, expected), message, actual, context);
         }
         return actual;
     }
@@ -270,9 +274,9 @@
      * @param message  optional message
      * @returns value
      */
-    $.assertNotEquals = function (actual, expected, message) {
+    $.assertNotEquals = function (actual, expected, message, context) {
         if (options.enabled) {
-            assert(!equals(actual, expected), message, actual);
+            assert(!equals(actual, expected), message, actual, context);
         }
         return actual;
     }
@@ -286,9 +290,9 @@
      * @param message  optional message
      * @returns value
      */
-    $.assertDeepEquals = function (actual, expected, message) {
+    $.assertDeepEquals = function (actual, expected, message, context) {
         if (options.enabled) {
-            assert(deepEquals(actual, expected), message, actual);
+            assert(deepEquals(actual, expected), message, actual, context);
         }
         return actual;
     }
@@ -302,9 +306,9 @@
      * @param message  optional message
      * @returns value
      */
-    $.assertNotDeepEquals = function (actual, expected, message) {
+    $.assertNotDeepEquals = function (actual, expected, message, context) {
         if (options.enabled) {
-            assert(!deepEquals(actual, expected), message, actual);
+            assert(!deepEquals(actual, expected), message, actual, context);
         }
         return actual;
     }
@@ -318,51 +322,59 @@
     /**
      * Base assertion handler.
      */
-    function assert(value, message, originalValue) {
+    function assert(value, message, originalValue, context) {
         if (!value) {
             var reportValue = arguments.length < 3 ? value : originalValue;
-            fail(reportValue, message);
+            fail(reportValue, message, context);
         }
     }
 
     /**
      * Handles a failed assertion.
      */
-    function fail(value, message) {
-        var stacktrace = printStackTrace();
-        var context = options.contextCallback(value, message, stacktrace);
-        logToConsole(value, message, stacktrace, context);
-        logToAjax(value, message, stacktrace, context);
+    function fail(value, message, context) {
+        var stacktrace = printStackTrace( { guess: false } );
+        stacktrace = stacktrace.slice(6, stacktrace.length);
+        var globalContext = options.context;
+        logToConsole(value, message, stacktrace, globalContext, context);
+        logToAjax(value, message, stacktrace, globalContext, context);
     }
 
     /**
      * Handles window.onerror.
      */
     function failGlobal(msg, url, linenumber) {
-        fail(arguments, "Global error");
+        fail({ url : url, linenumber : linenumber }, msg, "global");
     }
 
     /**
      * Logs to options.log
      */
-    function logToConsole(value, message, stacktrace, context) {
-        options.log(options.title, value, message, stacktrace.join(",\n"), context);
+    function logToConsole(value, message, stacktrace, globalContext, context) {
+        options.log(options.title, message, "\n",
+            {
+                "Value": value,
+                "Stacktrace": stacktrace,
+                "Global context": globalContext,
+                "Local context": context
+            });
     }
 
     /**
      * Logs to $.ajax(options.ajax)
      */
-    function logToAjax(title, value, message, stacktrace, context) {
+    function logToAjax(value, message, stacktrace, globalContext, context) {
         var params = options.ajax;
         if (params) {
             var data = {
-                context: context,
+                globalContext: JSON.stringify(globalContext),
+                localContext: JSON.stringify(context),
                 message: message,
-                stacktrace: stacktrace,
+                stacktrace: JSON.stringify(stacktrace),
                 title: options.title,
-                value: value
+                value: JSON.stringify(value)
             };
-            params = $.extend(params, {data: data}, true);
+            params = $.extend(params, { data: data }, true);
             $.ajax(params);
         }
     }
